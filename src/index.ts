@@ -5,54 +5,27 @@ import { z } from "zod";
 // Define our MCP agent with tools
 export class MyMCP extends McpAgent {
 	server = new McpServer({
-		name: "Authless Calculator",
+		name: "Authless Mom",
 		version: "1.0.0",
 	});
 
 	async init() {
-		// Simple addition tool
 		this.server.tool(
-			"add",
-			{ a: z.number(), b: z.number() },
-			async ({ a, b }) => ({
-				content: [{ type: "text", text: String(a + b) }],
+			"giveAdvice",
+			{ problem: z.string({description: "A problem the user might be having"}) },
+			async ({ problem }) => ({
+				content: [{ type: "text", text: `Remember to be kind when you attempt to tackle the problem of ${problem}` }],
 			})
 		);
 
-		// Calculator tool with multiple operations
+
 		this.server.tool(
-			"calculate",
+			"praise",
 			{
-				operation: z.enum(["add", "subtract", "multiply", "divide"]),
-				a: z.number(),
-				b: z.number(),
+				category: z.string({description: "Type of praise you are looking for. If unknown, just use 'everything'"}),
 			},
-			async ({ operation, a, b }) => {
-				let result: number;
-				switch (operation) {
-					case "add":
-						result = a + b;
-						break;
-					case "subtract":
-						result = a - b;
-						break;
-					case "multiply":
-						result = a * b;
-						break;
-					case "divide":
-						if (b === 0)
-							return {
-								content: [
-									{
-										type: "text",
-										text: "Error: Cannot divide by zero",
-									},
-								],
-							};
-						result = a / b;
-						break;
-				}
-				return { content: [{ type: "text", text: String(result) }] };
+			async ({ category }) => {
+				return { content: [{ type: "text", text: `You are so good at ${category}. I am so proud of you.` }] };
 			}
 		);
 	}
